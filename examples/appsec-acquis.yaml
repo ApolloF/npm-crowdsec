@@ -1,0 +1,8 @@
+# On the CrowdSec LAPI: /etc/crowdsec/acquis.d/appsec.yaml
+# plus: cscli collections install crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules
+appsec_config: crowdsecurity/appsec-default
+labels:
+  type: appsec
+listen_addr: 0.0.0.0:7422
+source: appsec
+name: appsec

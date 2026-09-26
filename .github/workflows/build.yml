@@ -1,0 +1,37 @@
+name: build
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      npm_version: {description: "NPM version", default: "2.16.0"}
+      bouncer_version: {description: "cs-openresty-bouncer version", default: "v1.2.3"}
+  schedule:
+    - cron: "0 5 * * 1"   # weekly rebuild picks up base-image security fixes
+permissions:
+  contents: read
+  packages: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NPM_VERSION: ${{ inputs.npm_version || '2.16.0' }}
+      CS_BOUNCER_VERSION: ${{ inputs.bouncer_version || 'v1.2.3' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          pull: true
+          push: true
+          build-args: |
+            NPM_VERSION=${{ env.NPM_VERSION }}
+            CS_BOUNCER_VERSION=${{ env.CS_BOUNCER_VERSION }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/npm-crowdsec:${{ env.NPM_VERSION }}-cs${{ env.CS_BOUNCER_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/npm-crowdsec:latest
